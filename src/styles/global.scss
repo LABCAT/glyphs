@@ -42,12 +42,12 @@ body {
     }
 }
 
-.p5Canvas, 
+.p5Canvas,
 #defaultCanvas0 {
     position: relative;
     z-index: 1;
-    background: var(--gradient-bg);
-    background-blend-mode: var(--gradient-blend-mode);
+    background-image: var(--canvas-pattern);
+    background-size: var(--canvas-pattern-size);
 }
 
 .p5Canvas--cursor-play {
