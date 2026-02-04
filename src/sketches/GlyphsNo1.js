@@ -68,7 +68,8 @@ const sketch = (p) => {
     if (p.blackFade.active) {
       const elapsed = p.song.currentTime() * 1000 - p.blackFade.startTime;
       const progress = p.constrain(elapsed / p.blackFade.duration, 0, 1);
-      const opacity = 1 - progress;
+      const easedProgress = Math.pow(progress, 3);
+      const opacity = 1 - easedProgress;
       
       p.colorMode(p.RGB, 255);
       p.background(0, 0, 0, opacity * 255);
