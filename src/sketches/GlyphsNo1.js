@@ -71,7 +71,7 @@ const sketch = (p) => {
       const opacity = 1 - progress;
       
       p.colorMode(p.RGB, 255);
-      p.background(0, opacity * 255);
+      p.background(0, 0, 0, opacity * 255);
       p.colorMode(p.HSB, 360, 100, 100, 1);
 
       if (progress >= 1) {
@@ -129,11 +129,10 @@ const sketch = (p) => {
       p.cameraOverride = true;
     }
 
-    if (currentCue === 5) {
-      const twoBarsDuration = (8 * 60 / p.bpm) * 1000;
+    if (currentCue >= 5) {
       p.blackFade.active = true;
       p.blackFade.startTime = p.song.currentTime() * 1000;
-      p.blackFade.duration = twoBarsDuration;
+      p.blackFade.duration = duration * 1000;
       p.setComplexCanvasBg();
     }
 
@@ -168,9 +167,41 @@ const sketch = (p) => {
     document.documentElement.style.setProperty('--canvas-pattern', pattern);
   };
 
+  p.randomHexColor = () => {
+    return '#' + Math.floor(p.random(16777215)).toString(16).padStart(6, '0').toUpperCase();
+  };
+
+  p.generateComplexBg = () => {
+    const gradients = [];
+    const blendModes = ['difference', 'soft-light', 'difference', 'difference', 'difference', 'exclusion'];
+    
+    for (let i = 0; i < 4; i++) {
+      const angle = p.random(360);
+      const color1 = p.randomHexColor();
+      const color2 = p.randomHexColor();
+      const stop1 = p.random(30);
+      const stop2 = 70 + p.random(30);
+      gradients.push(`linear-gradient(${angle}deg, ${color1} ${stop1}%, ${color2} ${stop2}%)`);
+    }
+    
+    for (let i = 0; i < 2; i++) {
+      const size1 = 80 + p.random(40);
+      const size2 = 80 + p.random(40);
+      const posX = p.random(100);
+      const posY = p.random(100);
+      const color1 = p.randomHexColor();
+      const color2 = p.randomHexColor();
+      gradients.push(`radial-gradient(${size1}% ${size2}% at ${posX}% ${posY}%, ${color1} 0%, ${color2} 100%)`);
+    }
+    
+    return {
+      bg: gradients.join(', '),
+      blendModes: blendModes.join(', ')
+    };
+  };
+
   p.setComplexCanvasBg = () => {
-    const bg = 'linear-gradient(121.28deg, #000000 0%, #FFFFFF 100%), linear-gradient(121.28deg, #FFB800 0%, #FFFFFF 100%), linear-gradient(140.54deg, #7000FF 0%, #001AFF 72.37%), linear-gradient(307.43deg, #FFE927 0%, #00114D 100%), radial-gradient(107% 142.8% at 15.71% 104.5%, #FFFFFF 0%, #A7AA00 100%), radial-gradient(100.22% 100% at 70.57% 0%, #7A3B00 0%, #1DAC92 100%)';
-    const blendModes = 'difference, soft-light, difference, difference, difference, exclusion';
+    const { bg, blendModes } = p.generateComplexBg();
     
     const canvas = p.canvas || document.querySelector('.p5Canvas, #defaultCanvas0');
     if (canvas) {
