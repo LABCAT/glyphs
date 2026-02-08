@@ -41,12 +41,15 @@ const sketch = (p) => {
 
     p.colorMode(p.HSB, 360, 100, 100, 1);
 
-    p.colourSet = p.generateColorSet();
-    p.currentCanvasBg = null;
-    p.setCanvasBgFromSet();
+    const hue = Math.floor(Math.random() * 360);
+    const saturation = Math.floor(Math.random() * 20) + 80;
+    const brightness = Math.floor(Math.random() * 40) + 50;
+    p.colourSet = [p.color(hue, saturation, brightness)];
+    p.setComplexCanvasBg();
 
     const glyphSize = Math.min(p.width, p.height) * 0.3;
-    p.glyph = new LABCATGlyph3D(p, 0, 0, 0, glyphSize, false, false);
+    p.glyph = new LABCATGlyph3D(p, 0, 0, 0, glyphSize, false);
+    p.extraGlyphs = [];
 
     p.cam = p.createCamera();
     p.cam.setPosition(0, 0, p.height / 2);
@@ -58,17 +61,13 @@ const sketch = (p) => {
   p.draw = () => {
     p.clear();
 
-    if (p.cameraOverride) {
-      p.cam.setPosition(p.cameraX, p.cameraY, p.cameraZ);
-      p.cam.lookAt(0, 0, 0);
-    } else {
-      p.orbitControl();
-    }
+    p.cam.setPosition(p.cameraX, p.cameraY, p.cameraZ);
+    p.cam.lookAt(0, 0, 0);
 
     if (p.blackFade.active) {
       const elapsed = p.song.currentTime() * 1000 - p.blackFade.startTime;
       const progress = p.constrain(elapsed / p.blackFade.duration, 0, 1);
-      const easedProgress = Math.pow(progress, 3);
+      const easedProgress = Math.pow(progress, 2);
       const opacity = 1 - easedProgress;
       
       p.colorMode(p.RGB, 255);
@@ -92,9 +91,34 @@ const sketch = (p) => {
       }
     }
 
+    if (p.extraGlyphs) {
+      p.extraGlyphs.forEach(glyph => {
+        if (glyph && glyph.animateZ) {
+          const elapsed = p.song.currentTime() * 1000 - glyph.animateZStart;
+          const progress = p.constrain(elapsed / glyph.animateZDuration, 0, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          glyph.z = p.lerp(glyph.animateZFrom, glyph.animateZTo, eased);
+
+          if (progress >= 1) {
+            glyph.animateZ = false;
+            glyph.z = glyph.animateZTo;
+          }
+        }
+      });
+    }
+
     if (p.glyph) {
       p.glyph.update();
       p.glyph.draw();
+    }
+
+    if (p.extraGlyphs) {
+      p.extraGlyphs.forEach(glyph => {
+        if (glyph) {
+          glyph.update();
+          glyph.draw();
+        }
+      });
     }
   };
 
@@ -102,20 +126,15 @@ const sketch = (p) => {
     const { currentCue, durationTicks } = note;
     const duration = (durationTicks / p.PPQ) * (60 / p.bpm);
 
-    console.log(currentCue, duration);
-
-
-    // Camera position logic
     const resetCues = [1, 2, 3, 4, 25, 26, 27, 28, 49];
 
     if (resetCues.includes(currentCue) || duration < 0.4) {
-      // Reset to default position
+      p.extraGlyphs = currentCue < 48 ? [] : p.extraGlyphs;
       p.cameraX = 0;
       p.cameraY = 0;
       p.cameraZ = p.height / 2;
       p.cameraOverride = true;
     } else {
-      // Change camera position for all other cues
       const cueIndex = currentCue % 6;
 
       const baseZ = p.map(p.width, 375, 1920, 1000, 500, true);
@@ -128,6 +147,22 @@ const sketch = (p) => {
       p.cameraY = y;
       p.cameraZ = z;
       p.cameraOverride = true;
+
+      // Create 6 extra glyphs in egg of life pattern
+      if (p.extraGlyphs.length === 0) {
+        const glyphSize = Math.min(p.width, p.height) * 0.3;
+        const radius = glyphSize * 0.88;
+        const backZ = -glyphSize * 0.88;
+
+        for (let i = 0; i < 6; i++) {
+          const angle = (i * 60) * (Math.PI / 180);
+          const x = Math.cos(angle) * radius;
+          const y = Math.sin(angle) * radius;
+          const extraGlyph = new LABCATGlyph3D(p, x, y, backZ, glyphSize * 0.6, false);
+          extraGlyph.originalZ = backZ;
+          p.extraGlyphs.push(extraGlyph);
+        }
+      }
     }
 
     if (currentCue >= 5) {
@@ -137,9 +172,7 @@ const sketch = (p) => {
       p.setComplexCanvasBg();
     }
 
-    p.setCanvasBgFromSet();
-
-    p.glyph.nextColour();
+    p.glyph.setRandomColour();
 
     const startZ = -p.height * 8;
     const endZ = p.height / 8;
@@ -150,22 +183,31 @@ const sketch = (p) => {
     p.glyph.animateZDuration = duration * 1000;
     p.glyph.animateZFrom = startZ;
     p.glyph.animateZTo = endZ;
+
+    if (p.extraGlyphs) {
+      p.extraGlyphs.forEach(glyph => {
+        if (glyph) {
+          const glyphStartZ = glyph.originalZ - p.height * 8;
+          const glyphEndZ = glyph.originalZ + p.height / 8;
+          glyph.z = glyphStartZ;
+          glyph.animateZ = true;
+          glyph.animateZStart = p.song.currentTime() * 1000;
+          glyph.animateZDuration = duration * 1000;
+          glyph.animateZFrom = glyphStartZ;
+          glyph.animateZTo = glyphEndZ;
+        }
+      });
+    }
   };
 
-  p.canvasPatterns = [
-    'linear-gradient(135deg, rgba(103, 103, 103, 0.06) 0%, rgba(103, 103, 103, 0.06) 50%, rgba(117, 117, 117, 0.06) 50%, rgba(117, 117, 117, 0.06) 100%), linear-gradient(135deg, rgba(49, 49, 49, 0.06) 0%, rgba(49, 49, 49, 0.06) 50%, rgba(228, 228, 228, 0.06) 50%, rgba(228, 228, 228, 0.06) 100%), linear-gradient(90deg, var(--canvas-bg), var(--canvas-bg))',
-    'linear-gradient(128deg, rgba(10, 10, 10, 0.06) 0%, rgba(10, 10, 10, 0.06) 50%, rgba(193, 193, 193, 0.06) 50%, rgba(193, 193, 193, 0.06) 100%), linear-gradient(51deg, rgba(231, 231, 231, 0.06) 0%, rgba(231, 231, 231, 0.06) 50%, rgba(39, 39, 39, 0.06) 50%, rgba(39, 39, 39, 0.06) 100%), linear-gradient(90deg, var(--canvas-bg), var(--canvas-bg))',
-    'linear-gradient(45deg, rgba(80, 80, 80, 0.08) 0%, rgba(80, 80, 80, 0.08) 50%, rgba(180, 180, 180, 0.08) 50%, rgba(180, 180, 180, 0.08) 100%), linear-gradient(90deg, rgba(120, 120, 120, 0.05) 0%, rgba(120, 120, 120, 0.05) 50%, rgba(200, 200, 200, 0.05) 50%, rgba(200, 200, 200, 0.05) 100%), linear-gradient(90deg, var(--canvas-bg), var(--canvas-bg))',
-    'linear-gradient(0deg, rgba(60, 60, 60, 0.07) 0%, rgba(60, 60, 60, 0.07) 25%, rgba(160, 160, 160, 0.07) 25%, rgba(160, 160, 160, 0.07) 50%, rgba(60, 60, 60, 0.07) 50%, rgba(60, 60, 60, 0.07) 75%, rgba(160, 160, 160, 0.07) 75%, rgba(160, 160, 160, 0.07) 100%), linear-gradient(90deg, var(--canvas-bg), var(--canvas-bg))',
-    'linear-gradient(90deg, rgba(100, 100, 100, 0.06) 0%, rgba(100, 100, 100, 0.06) 50%, rgba(150, 150, 150, 0.06) 50%, rgba(150, 150, 150, 0.06) 100%), linear-gradient(0deg, rgba(70, 70, 70, 0.06) 0%, rgba(70, 70, 70, 0.06) 50%, rgba(170, 170, 170, 0.06) 50%, rgba(170, 170, 170, 0.06) 100%), linear-gradient(90deg, var(--canvas-bg), var(--canvas-bg))',
-    'repeating-linear-gradient(0deg, transparent 0px, transparent 25px, hsla(332,66%,49%,0.1) 25px, hsla(332,66%,49%,0.1) 27px, transparent 27px, transparent 51px), repeating-linear-gradient(90deg, transparent 0px, transparent 25px, hsla(332,66%,49%,0.1) 25px, hsla(332,66%,49%,0.1) 27px, transparent 27px, transparent 51px), repeating-linear-gradient(90deg, transparent 0px, transparent 50px, hsla(193,5%,69%,0.1) 50px, hsla(193,5%,69%,0.1) 52px, transparent 52px, transparent 102px), repeating-linear-gradient(0deg, transparent 0px, transparent 50px, hsla(193,5%,69%,0.1) 50px, hsla(193,5%,69%,0.1) 52px, transparent 52px, transparent 102px), repeating-linear-gradient(0deg, hsla(26,76%,62%,0.1) 0px, hsla(26,76%,62%,0.1) 2px, transparent 2px, transparent 102px), repeating-linear-gradient(90deg, hsla(26,76%,62%,0.1) 0px, hsla(26,76%,62%,0.1) 2px, transparent 2px, transparent 102px), linear-gradient(90deg, var(--canvas-bg), var(--canvas-bg))'
-  ];
-
   p.executeTrack2 = (note) => {
-    const choices = p.canvasPatterns.filter((pat) => pat !== p.currentCanvasPattern);
-    const pattern = p.random(choices);
-    p.currentCanvasPattern = pattern;
-    document.documentElement.style.setProperty('--canvas-pattern', pattern);
+    const { currentCue, durationTicks } = note;
+    const duration = (durationTicks / p.PPQ) * (60 / p.bpm);
+    
+    p.blackFade.active = currentCue === 34 || currentCue === 68;
+    p.blackFade.startTime = p.song.currentTime() * 1000;
+    p.blackFade.duration = duration * 1000;
+    p.setComplexCanvasBg();
   };
 
   p.randomHexColor = () => {
@@ -203,44 +245,14 @@ const sketch = (p) => {
 
   p.setComplexCanvasBg = () => {
     const { bg, blendModes } = p.generateComplexBg();
-    
-    const canvas = p.canvas || document.querySelector('.p5Canvas, #defaultCanvas0');
-    if (canvas) {
-      canvas.style.background = bg;
-      canvas.style.backgroundBlendMode = blendModes;
-      document.documentElement.style.setProperty('--canvas-pattern', 'none');
-    }
+    document.documentElement.style.setProperty('--canvas-complex-bg', bg);
+    document.documentElement.style.setProperty('--canvas-complex-blend-mode', blendModes);
   };
-
-  p.setCanvasBgFromSet = () => {
-    const choices = p.colourSet.filter((c) => c.toString() !== p.currentCanvasBg);
-    const colour = p.random(choices);
-    p.currentCanvasBg = colour.toString();
-    document.documentElement.style.setProperty('--canvas-bg', p.currentCanvasBg);
-  };
-
-  p.generateColorSet = (count = 6) => {
-    const baseHue = Math.floor(Math.random() * 360);
-    const colors = [];
-
-    for (let i = 0; i < count; i++) {
-        // Use large variations in hue for psychedelic effects
-        const hue = (baseHue + (Math.random() * 360)) % 360;
-
-        // Saturation between 80-100 for very bold and saturated colors
-        const saturation = Math.floor(Math.random() * 20) + 80;
-
-        // Brightness between 50-90 for a mix of bright and vibrant tones
-        const brightness = Math.floor(Math.random() * 40) + 50;
-
-        // Push HSB color into the set
-        colors.push(p.color(hue, saturation, brightness));
-    }
-
-    return colors;
-}
 
   p.resetAnimation = () => {
+    const glyphSize = Math.min(p.width, p.height) * 0.3;
+    p.glyph = new LABCATGlyph3D(p, 0, 0, 0, glyphSize, false);
+    p.extraGlyphs = [];
   };
 
 

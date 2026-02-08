@@ -46,8 +46,8 @@ body {
 #defaultCanvas0 {
     position: relative;
     z-index: 1;
-    background-image: var(--canvas-pattern);
-    background-size: var(--canvas-pattern-size);
+    background: var(--canvas-complex-bg);
+    background-blend-mode: var(--canvas-complex-blend-mode);
 }
 
 .p5Canvas--cursor-play {
@@ -60,9 +60,8 @@ body {
 
 #play-icon {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 20px;
+    right: 20px;
     width: 120px;
     height: 120px;
     fill: var(--play-icon-color);
