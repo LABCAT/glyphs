@@ -37,14 +37,9 @@ const sketch = (p) => {
     p.frameRate(60);
     p.canvas.style.position = 'relative';
     p.canvas.style.zIndex = '1';
-    initCapture(p, { prefix: 'GlyphsNo1', enabled: false, captureCSSBackground: false });
+    initCapture(p, { prefix: 'GlyphsNo1', enabled: true, captureCSSBackground: true });
 
     p.colorMode(p.HSB, 360, 100, 100, 1);
-
-    const hue = Math.floor(Math.random() * 360);
-    const saturation = Math.floor(Math.random() * 20) + 80;
-    const brightness = Math.floor(Math.random() * 40) + 50;
-    p.colourSet = [p.color(hue, saturation, brightness)];
     p.setComplexCanvasBg();
 
     const glyphSize = Math.min(p.width, p.height) * 0.3;
@@ -52,9 +47,11 @@ const sketch = (p) => {
     p.extraGlyphs = [];
 
     p.cam = p.createCamera();
-    p.cam.setPosition(0, 0, p.height / 2);
+    p.cameraX = 0;
+    p.cameraY = 0;
+    p.cameraZ = p.height / 2;
+    p.cam.setPosition(p.cameraX, p.cameraY, p.cameraZ);
 
-    p.cameraOverride = false;
     p.blackFade = { active: false, startTime: 0, duration: 0 };
   };
 
@@ -133,7 +130,6 @@ const sketch = (p) => {
       p.cameraX = 0;
       p.cameraY = 0;
       p.cameraZ = p.height / 2;
-      p.cameraOverride = true;
     } else {
       const cueIndex = currentCue % 6;
 
@@ -146,7 +142,6 @@ const sketch = (p) => {
       p.cameraX = x;
       p.cameraY = y;
       p.cameraZ = z;
-      p.cameraOverride = true;
 
       // Create 6 extra glyphs in egg of life pattern
       if (p.extraGlyphs.length === 0) {

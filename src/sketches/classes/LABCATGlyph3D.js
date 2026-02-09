@@ -4,9 +4,6 @@ export default class LABCATGlyph3D {
       this.x = x;
       this.y = y;
       this.z = z;
-      this.rotationX = this.p.random(0, 360);
-      this.rotationY = this.p.random(0, 360);
-      this.rotationZ = this.p.random(0, 360);
 
       this.shouldGrow = shouldGrow;
       this.width = shouldGrow ? 0 : width;
@@ -36,20 +33,6 @@ export default class LABCATGlyph3D {
   update() {
       if (this.shouldGrow) {
           this.width += 32;
-
-          if (!this.rotationDirectionX) {
-              this.rotationDirectionX = this.p.random([-1, 1]);
-          }
-          if (!this.rotationDirectionY) {
-              this.rotationDirectionY = this.p.random([-1, 1]);
-          }
-          if (!this.rotationDirectionZ) {
-              this.rotationDirectionZ = this.p.random([-1, 1]);
-          }
-
-          this.rotationX += 1 * this.rotationDirectionX;
-          this.rotationY += 1 * this.rotationDirectionY;
-          this.rotationZ += 1 * this.rotationDirectionZ;
       }
 
       this.opacityMultiplier = this.opacityMultiplier >= 1 ? 1 : this.opacityMultiplier + 0.05;
@@ -197,9 +180,6 @@ export default class LABCATGlyph3D {
       this.p.push();
 
       this.p.translate(this.x, this.y, this.z);
-      this.p.rotateX(this.p.radians(this.rotationX));
-      this.p.rotateY(this.p.radians(this.rotationY));
-      this.p.rotateZ(this.p.radians(this.rotationZ));
 
       this.p.noStroke();
       const torusIndices = [0, 2];
