@@ -37,7 +37,7 @@ const sketch = (p) => {
     p.frameRate(60);
     p.canvas.style.position = 'relative';
     p.canvas.style.zIndex = '1';
-    initCapture(p, { prefix: 'GlyphsNo1', enabled: true, captureCSSBackground: true });
+    initCapture(p, { prefix: 'GlyphsNo1', enabled: false, captureCSSBackground: false });
 
     p.colorMode(p.HSB, 360, 100, 100, 1);
     p.setComplexCanvasBg();
