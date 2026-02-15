@@ -167,8 +167,11 @@ export default function initCapture(p, options = {}) {
   };
 
   p.captureFrameWithBackground = async (canvasElt, frameNum) => {
-    const gradientBg = document.documentElement.style.getPropertyValue('--gradient-bg');
-    const blendMode = document.documentElement.style.getPropertyValue('--gradient-blend-mode');
+    const root = document.documentElement;
+    const computed = getComputedStyle(canvasElt);
+    const canvasBg = computed.getPropertyValue('--canvas-complex-bg').trim();
+    const gradientBg = (canvasBg && canvasBg !== 'none') ? canvasBg : getComputedStyle(root).getPropertyValue('--gradient-bg').trim();
+    const blendMode = computed.getPropertyValue('--canvas-complex-blend-mode').trim() || getComputedStyle(root).getPropertyValue('--gradient-blend-mode').trim();
     
     const width = canvasElt.width;
     const height = canvasElt.height;
