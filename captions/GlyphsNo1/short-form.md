@@ -1,13 +1,3 @@
-# #AudioReactive #Glyphs
-
-Creative coding experiments exploring audio-reactive visualizations through the form of the LABCAT Gylph. Each animation uses precise MIDI synchronization to trigger visual transformations that respond to different audio tracks, creating a dynamic interplay between sound and form.
-
-Follow on Instagram → https://www.instagram.com/labcat2020/
-
-## #GlyphsNo1
-
-https://glyphs.labcat.nz/number-1/
-
 🌌 The Visible Spectrum of Rhythm 🌈🎧
 
 #GlyphsNo1 — a digital manifestation of #Chromesthesia. 🎨✨ When sound doesn't just vibrate; it bleeds into color.
