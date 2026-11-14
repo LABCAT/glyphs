@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@labcat2020/animation-lab':
+        specifier: ^0.5.0
+        version: 0.5.0(astro@5.15.1(@types/node@24.3.1)(rollup@4.50.0)(sass-embedded@1.92.0)(sass@1.92.0)(typescript@5.9.2))(sass-embedded@1.92.0)
       '@tonejs/midi':
         specifier: ^2.0.28
         version: 2.0.28
@@ -361,6 +364,16 @@ packages:
 
   '@jridgewell/sourcemap-codec@1.5.5':
     resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
+
+  '@labcat2020/animation-lab@0.5.0':
+    resolution: {integrity: sha512-+pNV3FhOYchzOODdCxB3P4OU0pgkEqKAeJw58kXKVczqoBIbB/BkrjPqhIWcg3Qua3tas0vFaWZujZgbiOSp0w==}
+    hasBin: true
+    peerDependencies:
+      astro: ^6.0.8
+      sass-embedded: ^1.98.0
+
+  '@labcat2020/rocketship@0.1.0':
+    resolution: {integrity: sha512-dib4+7r+brcMESqeVDU/sNWpx9azRcBImzWZxAmX4Qc4EbxK604kYA7d1xbHr2KlqI6136zpXEENn7UZmlklnQ==}
 
   '@oslojs/encoding@1.1.0':
     resolution: {integrity: sha512-70wQhgYmndg4GCPxPPxPGevRKqTIJ2Nh4OkiMWmDAVYsTQ+Ta7Sq+rPevXyXGdzr30/qZBnyOalCszoMxlyldQ==}
@@ -2043,6 +2056,15 @@ snapshots:
     optional: true
 
   '@jridgewell/sourcemap-codec@1.5.5': {}
+
+  '@labcat2020/animation-lab@0.5.0(astro@5.15.1(@types/node@24.3.1)(rollup@4.50.0)(sass-embedded@1.92.0)(sass@1.92.0)(typescript@5.9.2))(sass-embedded@1.92.0)':
+    dependencies:
+      '@labcat2020/rocketship': 0.1.0
+      astro: 5.15.1(@types/node@24.3.1)(rollup@4.50.0)(sass-embedded@1.92.0)(sass@1.92.0)(typescript@5.9.2)
+      normalize.css: 8.0.1
+      sass-embedded: 1.92.0
+
+  '@labcat2020/rocketship@0.1.0': {}
 
   '@oslojs/encoding@1.1.0': {}
 

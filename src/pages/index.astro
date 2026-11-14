@@ -1,19 +1,14 @@
 ---
-import BaseLayout from '@layouts/BaseLayout.astro';
+import BaseLayout from '@labcat2020/animation-lab/layouts/BaseLayout.astro';
+import SiteHeader from '@labcat2020/animation-lab/components/SiteHeader.astro';
+import SeriesHome from '@labcat2020/animation-lab/components/SeriesHome.astro';
 import { getAllSketches } from '@/sketchMetadata.js';
 
 const sketches = getAllSketches();
+const tagline = 'A whole surface written in symbols. Audio-reactive glyph animations.';
 ---
 
-<BaseLayout title="LABCATS Sketchbook" description="Creative Coding Experiments.">
-  <h1>LABCATS Sketchbook</h1>
-  <p>Creative Coding Experiments.</p>
-  
-  
-  <h2>Available Sketches</h2>
-  <ul>
-    {sketches.map(sketch => (
-      <li><a href={`/${sketch.id}`}>{sketch.title}</a></li>
-    ))}
-  </ul>
+<BaseLayout title="Glyphs | LABCAT Animations" description="Glyphs: audio-reactive glyph animations by LABCAT.">
+  <SiteHeader slot="header" collapsible={false} />
+  <SeriesHome name="Glyphs" tagline={tagline} sketches={sketches} planet="glyphs" accentA="#0cdbf5" accentB="#ff0cb8" />
 </BaseLayout>
